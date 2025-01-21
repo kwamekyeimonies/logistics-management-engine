@@ -1,21 +1,10 @@
-package logistics_management_engine.models;
+package logistics_management_engine.dto;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
 
-@Entity
-@Table(name = "user")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class User {
-    @Id
+public class CreateAccountResponse {
     private String id;
     private String staff_id;
     private String first_name;
