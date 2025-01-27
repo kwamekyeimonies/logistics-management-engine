@@ -1,9 +1,13 @@
 package logistics_management_engine.dto;
 
 import jakarta.persistence.Id;
+import lombok.Builder;
+import lombok.Data;
 
 import java.time.ZonedDateTime;
 
+@Data
+@Builder
 public class CreateAccountResponse {
     private String id;
     private String staff_id;
