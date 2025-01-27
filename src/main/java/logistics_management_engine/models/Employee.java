@@ -1,26 +1,32 @@
 package logistics_management_engine.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.NaturalId;
 
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "user")
+@Table(name = "employee")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class Employee {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
+    @NaturalId
     private String staff_id;
+    @NaturalId
+    private String user_name;
     private String first_name;
     private String last_name;
+    @NaturalId
     private String email;
+    @NaturalId
     private String phone_number;
     private String password;
     private String role;

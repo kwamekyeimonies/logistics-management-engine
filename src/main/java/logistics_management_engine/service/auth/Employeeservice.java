@@ -1,14 +1,18 @@
 package logistics_management_engine.service.auth;
 
 import logistics_management_engine.dto.*;
-import logistics_management_engine.repository.UserRepository;
+import logistics_management_engine.repository.EmployeeRepository;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.jvnet.hk2.annotations.Service;
+import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
-public class Userservice implements IUserService{
-    private final UserRepository userRepository;
+@Data
+public class Employeeservice implements IEmployeeService {
+
+    private final EmployeeRepository employeeRepository;
 
     @Override
     public CreateAccountResponse CreateSupervisorAccount(CreateAccountRequest createAccountRequest) {

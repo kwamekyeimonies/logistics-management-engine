@@ -2,7 +2,7 @@ package logistics_management_engine.service.auth;
 
 import logistics_management_engine.dto.*;
 
-public interface IUserService {
+public interface IEmployeeService {
     CreateAccountResponse CreateSupervisorAccount(CreateAccountRequest createAccountRequest);
     LoginResponse LoginUserAccount(LoginRequest loginRequest);
     ForgetPasswordResponse ForgetUserAccount(ForgetPasswordRequest forgetPasswordRequest);
