@@ -23,11 +23,7 @@ public class SecurityConfiguration {
         httpSecurity
                 .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> {
-                    authorizationManagerRequestMatcherRegistry.requestMatchers(
-                            "/swagger-ui/**",
-                            "v3/api-docs/**"
-                    ).permitAll();
-                    authorizationManagerRequestMatcherRegistry.anyRequest().authenticated();
+                    authorizationManagerRequestMatcherRegistry.anyRequest().permitAll();
                 })
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable);

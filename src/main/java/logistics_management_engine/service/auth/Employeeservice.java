@@ -1,15 +1,21 @@
 package logistics_management_engine.service.auth;
 
+import logistics_management_engine.common.AccountStatus;
+import logistics_management_engine.common.EmployeeRoles;
+import logistics_management_engine.common.Messages;
 import logistics_management_engine.dto.*;
 import logistics_management_engine.models.Employee;
 import logistics_management_engine.repository.EmployeeRepository;
+import logistics_management_engine.service.aws_service.IAWSService;
 import logistics_management_engine.utils.EmployeeIdUtil;
+import logistics_management_engine.utils.FileUtils;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -17,16 +23,11 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
-@Data
 public class Employeeservice implements IEmployeeService {
 
-    private  EmployeeRepository _employeeRepository;
-    private  PasswordEncoder _passwordEncoder;
-
-    public Employeeservice(EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder) {
-        _employeeRepository = employeeRepository;
-        _passwordEncoder = passwordEncoder;
-    }
+    private final  EmployeeRepository _employeeRepository;
+    private final  PasswordEncoder _passwordEncoder;
+    private final IAWSService _awsService;
 
     @Override
     public CompletableFuture<CreateAccountResponse> CreateSupervisorAccount(CreateAccountRequest createAccountRequest) {
@@ -40,20 +41,83 @@ public class Employeeservice implements IEmployeeService {
                 if (employee_phoneNumber.isPresent()) {
                     throw new Exception("Phone number already exist: "+createAccountRequest.getPhone_number());
                 }
+
+                // Check if the files are images
+                if (!FileUtils.isImageFile(Objects.requireNonNull(createAccountRequest.getProfile_picture().getContentType()))) {
+                    throw new Exception("Profile picture must be an image file (JPEG, PNG, GIF, BMP).");
+                }
+
+                if (!FileUtils.isImageFile(Objects.requireNonNull(createAccountRequest.getIdentification_card_front().getContentType()))) {
+                    throw new Exception("Identification card front must be an image file (JPEG, PNG, GIF, BMP).");
+                }
+
+                if (!FileUtils.isImageFile(Objects.requireNonNull(createAccountRequest.getIdentification_card_back().getContentType()))) {
+                    throw new Exception("Identification card back must be an image file (JPEG, PNG, GIF, BMP).");
+                }
+
+                // Check file sizes
+                if (!FileUtils.isFileSizeValid(createAccountRequest.getProfile_picture().getSize())) {
+                    throw new Exception("Profile picture size exceeds 5MB. Please upload a smaller image.");
+                }
+
+                if (!FileUtils.isFileSizeValid(createAccountRequest.getIdentification_card_front().getSize())) {
+                    throw new Exception("Identification card front size exceeds 5MB. Please upload a smaller image.");
+                }
+
+                if (!FileUtils.isFileSizeValid(createAccountRequest.getIdentification_card_back().getSize())) {
+                    throw new Exception("Identification card back size exceeds 5MB. Please upload a smaller image.");
+                }
+
+                // Dynamically generate file extensions
+                String profile_pic_extension = FileUtils.get_file_extension(createAccountRequest.getProfile_picture().getContentType());
+                String id_card_front_extension = FileUtils.get_file_extension(createAccountRequest.getIdentification_card_front().getContentType());
+                String id_card_back_extension = FileUtils.get_file_extension(createAccountRequest.getIdentification_card_back().getContentType());
+
+
+                String profile_picture_url = _awsService.uploadFileToBucket(
+                        "kpododo-image-store",
+                        "profile_pictures/" + createAccountRequest.getEmail() + "-profile" +profile_pic_extension,
+                        createAccountRequest.getProfile_picture().getSize(),
+                        createAccountRequest.getProfile_picture().getContentType(),
+                        createAccountRequest.getProfile_picture().getInputStream()
+                );
+
+                // Upload identification card front to S3
+                String id_card_front_url = _awsService.uploadFileToBucket(
+                        "kpododo-image-store",
+                        "id_cards/" + createAccountRequest.getEmail() + "-id-front"+id_card_front_extension,
+                        createAccountRequest.getIdentification_card_front().getSize(),
+                        createAccountRequest.getIdentification_card_front().getContentType(),
+                        createAccountRequest.getIdentification_card_front().getInputStream()
+                );
+
+                // Upload identification card back to S3
+                String id_card_back_url = _awsService.uploadFileToBucket(
+                        "kpododo-image-store",
+                        "id_cards/" + createAccountRequest.getEmail() + "-id-back" + id_card_back_extension,
+                        createAccountRequest.getIdentification_card_back().getSize(),
+                        createAccountRequest.getIdentification_card_back().getContentType(),
+                        createAccountRequest.getIdentification_card_back().getInputStream()
+                );
                 Employee newEmployee = Employee.builder()
-                        .email(createAccountRequest.getEmail())
+                        .email(createAccountRequest.getEmail().toLowerCase())
                         .phone_number(createAccountRequest.getPhone_number())
+                        .about_me(createAccountRequest.getAbout_me())
                         .created_at(ZonedDateTime.now())
                         .updated_at(ZonedDateTime.now())
                         .is_deleted(false)
+                        .role(EmployeeRoles.SUPERVISOR.getRoleName())
+                        .status(AccountStatus.NOT_ACTIVE.getStatusName())
                         .first_name(createAccountRequest.getFirst_name())
+                        .user_name(createAccountRequest.getFirst_name().toLowerCase())
                         .last_name(createAccountRequest.getLast_name())
                         .staff_id(EmployeeIdUtil.generateSupervisorId().toLowerCase())
                         .address(createAccountRequest.getAddress())
                         .date_of_birth(createAccountRequest.getDate_of_birth())
-                        .profile_picture(createAccountRequest.getProfile_picture())
+                        .profile_picture(profile_picture_url)
                         .identification_number(createAccountRequest.getIdentification_number())
-                        .identification_card(createAccountRequest.getIdentification_card())
+                        .identification_card_front(id_card_front_url)
+                        .identification_card_back(id_card_back_url)
                         .password(_passwordEncoder.encode(createAccountRequest.getPassword()))
                         .id(UUID.randomUUID().toString())
                         .build();
@@ -66,14 +130,8 @@ public class Employeeservice implements IEmployeeService {
                         .first_name(createAccountRequest.getFirst_name())
                         .last_name(createAccountRequest.getLast_name())
                         .staff_id(newEmployee.getStaff_id())
-                        .about_me(newEmployee.getAbout_me())
-                        .address(newEmployee.getAddress())
-                        .id(newEmployee.getId())
-                        .profile_picture(newEmployee.getProfile_picture())
-                        .identification_number(newEmployee.getIdentification_number())
-                        .identification_card(newEmployee.getIdentification_card())
                         .staff_id(newEmployee.getStaff_id())
-                        .created_at(newEmployee.getCreated_at())
+                        .message(Messages.ACCOUNT_CREATED_SUCCESSFULLY)
                         .build();
 
 

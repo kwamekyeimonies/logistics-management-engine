@@ -18,7 +18,7 @@ import java.time.ZonedDateTime;
 @Builder
 public class Employee {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false, unique = true)
     private String id;
     @NaturalId
     private String staff_id;
@@ -35,7 +35,8 @@ public class Employee {
     private String about_me;
     private String address;
     private String profile_picture;
-    private String identification_card;
+    private String identification_card_front;
+    private String identification_card_back;
     private String identification_number;
     private String status;
     private String date_of_birth;
