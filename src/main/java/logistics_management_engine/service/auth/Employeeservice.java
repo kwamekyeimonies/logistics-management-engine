@@ -30,7 +30,7 @@ public class Employeeservice implements IEmployeeService {
     private final IAWSService _awsService;
 
     @Override
-    public CompletableFuture<CreateAccountResponse> CreateSupervisorAccount(CreateAccountRequest createAccountRequest) {
+    public CompletableFuture<CreateAccountResponse> CreateEmployeeAccount(CreateAccountRequest createAccountRequest) {
         return CompletableFuture.supplyAsync(()->{
             try {
                 Optional<Employee> employee = _employeeRepository.findEmployeeByEmail(createAccountRequest.getEmail().toLowerCase());
@@ -41,6 +41,8 @@ public class Employeeservice implements IEmployeeService {
                 if (employee_phoneNumber.isPresent()) {
                     throw new Exception("Phone number already exist: "+createAccountRequest.getPhone_number());
                 }
+
+                EmployeeRoles role = validateRole(createAccountRequest.getRole());
 
                 // Check if the files are images
                 if (!FileUtils.isImageFile(Objects.requireNonNull(createAccountRequest.getProfile_picture().getContentType()))) {
@@ -75,7 +77,7 @@ public class Employeeservice implements IEmployeeService {
 
 
                 String profile_picture_url = _awsService.uploadFileToBucket(
-                        "kpododo-image-store",
+                        "mydevfilestore",
                         "profile_pictures/" + createAccountRequest.getEmail() + "-profile" +profile_pic_extension,
                         createAccountRequest.getProfile_picture().getSize(),
                         createAccountRequest.getProfile_picture().getContentType(),
@@ -84,7 +86,7 @@ public class Employeeservice implements IEmployeeService {
 
                 // Upload identification card front to S3
                 String id_card_front_url = _awsService.uploadFileToBucket(
-                        "kpododo-image-store",
+                        "mydevfilestore",
                         "id_cards/" + createAccountRequest.getEmail() + "-id-front"+id_card_front_extension,
                         createAccountRequest.getIdentification_card_front().getSize(),
                         createAccountRequest.getIdentification_card_front().getContentType(),
@@ -93,7 +95,7 @@ public class Employeeservice implements IEmployeeService {
 
                 // Upload identification card back to S3
                 String id_card_back_url = _awsService.uploadFileToBucket(
-                        "kpododo-image-store",
+                        "mydevfilestore",
                         "id_cards/" + createAccountRequest.getEmail() + "-id-back" + id_card_back_extension,
                         createAccountRequest.getIdentification_card_back().getSize(),
                         createAccountRequest.getIdentification_card_back().getContentType(),
@@ -106,7 +108,7 @@ public class Employeeservice implements IEmployeeService {
                         .created_at(ZonedDateTime.now())
                         .updated_at(ZonedDateTime.now())
                         .is_deleted(false)
-                        .role(EmployeeRoles.SUPERVISOR.getRoleName())
+                        .role(role.getRoleName())
                         .status(AccountStatus.NOT_ACTIVE.getStatusName())
                         .first_name(createAccountRequest.getFirst_name())
                         .user_name(createAccountRequest.getFirst_name().toLowerCase())
@@ -154,5 +156,13 @@ public class Employeeservice implements IEmployeeService {
     @Override
     public VerifyAccountRequest VerifyUserAccount(VerifyAccountRequest verifyAccountRequest) {
         return null;
+    }
+
+    private EmployeeRoles validateRole(String roleName) throws Exception {
+        try {
+            return EmployeeRoles.valueOf(roleName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new Exception("Invalid role: " + roleName);
+        }
     }
 }
