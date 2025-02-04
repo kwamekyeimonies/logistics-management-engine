@@ -7,6 +7,7 @@ public class Messages {
     public static final String FILE_DELETE_SUCCESS = "File deleted successfully from %s/%s";
     public static final String FETCH_FILES_SUCCESS = "Files fetched successfully from %s";
     public static final String ACCOUNT_CREATED_SUCCESSFULLY = "Account created successfully";
+    public static final String REFRESH_TOKEN_CREATED_SUCCESSFULLY = "Token generated successfully";
 
     // Error messages
     public static final String ERROR_FILE_UPLOAD = "Error during file upload: %s";

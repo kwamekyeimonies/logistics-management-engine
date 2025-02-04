@@ -14,14 +14,14 @@ import java.util.Collections;
 @Service
 @RequiredArgsConstructor
 public class CustomeUserDetailsService implements UserDetailsService {
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String staff_id) throws UsernameNotFoundException {
         // Try to find the user by staffId, username, or phone_number
-        Employee employee = employeeRepository.findEmployeeByStaffIdOrUserNameOrPhoneNumber(identifier)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with identifier: " + identifier));
+        Employee employee = employeeRepository.findEmployeeByStaff_id(staff_id)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with staff_id: " + staff_id));
 
-        return new User(employee.getUser_name(), employee.getPassword(), Collections.emptyList());
+        return new User(employee.getStaff_id(), employee.getPassword(), Collections.emptyList());
     }
 }

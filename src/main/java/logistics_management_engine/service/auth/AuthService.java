@@ -2,6 +2,7 @@ package logistics_management_engine.service.auth;
 
 
 import logistics_management_engine.config.JwtUtil;
+import logistics_management_engine.dto.LoginResponse;
 import logistics_management_engine.models.Employee;
 import logistics_management_engine.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,21 +15,38 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private AuthenticationManager authenticationManager;
-    private CustomeUserDetailsService userDetailsService;
-    private JwtUtil jwtUtil;
-    private EmployeeRepository employeeRepository;
+    private final AuthenticationManager authenticationManager;
+    private final CustomeUserDetailsService userDetailsService;
+    private final JwtUtil jwtUtil;
+    private final EmployeeRepository employeeRepository;
 
-    public String authenticate(String identifier, String password) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(identifier, password)
-        );
+    public LoginResponse authenticate(String staff_id, String password) {
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(identifier);
-
-        Employee employee = employeeRepository.findEmployeeByStaffIdOrUserNameOrPhoneNumber(identifier)
+        Employee employee = employeeRepository.findEmployeeByStaff_id(staff_id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return jwtUtil.generateToken(userDetails, employee.getRole(), employee.getProfile_picture(),employee.getPhone_number());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(staff_id, password)
+        );
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(staff_id);
+
+        String access_token= jwtUtil.generateAccessToken(userDetails, employee);
+        String refresh_token= jwtUtil.generateRefreshToken(userDetails, employee);
+
+        LoginResponse loginResponse = LoginResponse.builder()
+                .access_token(access_token)
+                .refresh_token(refresh_token)
+                .email(employee.getEmail())
+                .first_name(employee.getFirst_name())
+                .last_name(employee.getLast_name())
+                .phone_number(employee.getPhone_number())
+                .id(employee.getId())
+                .staff_id(employee.getStaff_id())
+                .profile_picture(employee.getProfile_picture())
+                .role(employee.getRole())
+                .build();
+
+        return loginResponse;
     }
 }
