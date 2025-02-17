@@ -1,5 +1,6 @@
 package logistics_management_engine.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,6 @@ import java.util.UUID;
 @Table(name = "product_supplier")
 public class ProductSupplier {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "supplier_id", columnDefinition = "UUID")
     private UUID supplierId;
     @Column(name = "supplier_name", nullable = false)
@@ -44,7 +44,8 @@ public class ProductSupplier {
     private LocalDateTime createdDate;
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "created_by_employee_id", nullable = false, columnDefinition = "VARCHAR")
     private Employee createdByEmployee;
     @Column(name = "updated_by")

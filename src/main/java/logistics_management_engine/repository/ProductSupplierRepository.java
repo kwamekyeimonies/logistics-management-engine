@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ProductSupplierRepository extends JpaRepository<ProductSupplier, UUID> {
@@ -16,4 +17,6 @@ public interface ProductSupplierRepository extends JpaRepository<ProductSupplier
     List<ProductSupplier> findByStatus(String status);
     List<ProductSupplier> findByCountry(String country);
     List<ProductSupplier> findBySupplierNameContainingIgnoreCase(String supplierName);
+    Optional<ProductSupplier> findBySupplierIdAndCreatedByEmployee(UUID supplierId, Employee createdByEmployee);
+
 }
