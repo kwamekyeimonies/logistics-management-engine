@@ -44,7 +44,7 @@ public class Product {
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
     @ManyToOne
-    @JoinColumn(name = "created_by_employee_id", nullable = false, columnDefinition = "UUID")
+    @JoinColumn(name = "created_by_employee_id", nullable = false, columnDefinition = "VARCHAR")
     private Employee createdByEmployee;
     @Column(name = "updated_by")
     private String updatedBy;

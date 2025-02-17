@@ -15,4 +15,10 @@ public class Messages {
     public static final String ERROR_FILE_RETRIEVE = "Error retrieving file: %s";
     public static final String ERROR_FILE_DELETE = "Error deleting file: %s";
     public static final String ERROR_FETCH_FILES = "Error fetching files: %s";
+
+    //Product Supplier messages
+    public static final String ERROR_CREATE_PRODUCT_SUPPLIER = "Error creating product supplier: %s";
+    public static final String ERROR_DELETE_PRODUCT = "Error deleting product: %s";
+    public static final String PRODUCT_SUPPLIER_CREATED_SUCCESSFULLY = "Product supplier created successfully";
+
 }

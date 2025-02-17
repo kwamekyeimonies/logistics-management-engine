@@ -1,14 +1,19 @@
 package logistics_management_engine.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "product_supplier")
 public class ProductSupplier {
     @Id
@@ -40,7 +45,7 @@ public class ProductSupplier {
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
     @ManyToOne
-    @JoinColumn(name = "created_by_employee_id", nullable = false, columnDefinition = "UUID")
+    @JoinColumn(name = "created_by_employee_id", nullable = false, columnDefinition = "VARCHAR")
     private Employee createdByEmployee;
     @Column(name = "updated_by")
     private String updatedBy;
