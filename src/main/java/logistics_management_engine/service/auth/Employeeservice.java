@@ -44,7 +44,6 @@ public class Employeeservice implements IEmployeeService {
 
                 EmployeeRoles role = validateRole(createAccountRequest.getRole());
 
-                // Check if the files are images
                 if (!FileUtils.isImageFile(Objects.requireNonNull(createAccountRequest.getProfile_picture().getContentType()))) {
                     throw new Exception("Profile picture must be an image file (JPEG, PNG, GIF, BMP).");
                 }
@@ -57,7 +56,6 @@ public class Employeeservice implements IEmployeeService {
                     throw new Exception("Identification card back must be an image file (JPEG, PNG, GIF, BMP).");
                 }
 
-                // Check file sizes
                 if (!FileUtils.isFileSizeValid(createAccountRequest.getProfile_picture().getSize())) {
                     throw new Exception("Profile picture size exceeds 5MB. Please upload a smaller image.");
                 }
@@ -93,7 +91,6 @@ public class Employeeservice implements IEmployeeService {
                         createAccountRequest.getIdentification_card_front().getInputStream()
                 );
 
-                // Upload identification card back to S3
                 String id_card_back_url = _awsService.uploadFileToBucket(
                         "mydevfilestore",
                         "id_cards/" + createAccountRequest.getEmail() + "-id-back" + id_card_back_extension,
