@@ -57,6 +57,7 @@ public class ProductSupplierController {
     }
 
     @GetMapping("/all")
+    @CrossOrigin(origins = "*")
     @RequiresRole({"Supervisor", "Administrator", "Manager"})
     public @ResponseBody ResponseEntity<List<ProductSupplier>> getAllProductSuppliers(
             Authentication authentication) {
