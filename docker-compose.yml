@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    image: kpododoconsult/logistics-management-engine:latest
+    container_name: logistics_app
+    restart: always
+    ports:
+      - "18085:18085"
+    depends_on:
+      - eureka
+      - zipkin
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://172.31.48.55:6666/logisticsdb
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_ZIPKIN_BASE_URL: http://zipkin:9411
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+    networks:
+      - logistics_network
+
+  eureka:
+    image: steeltoeoss/eureka-server
+    container_name: eureka_server
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - logistics_network
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin_server
+    restart: always
+    ports:
+      - "9411:9411"
+    networks:
+      - logistics_network
+
+networks:
+  logistics_network:
+    driver: bridge
+
