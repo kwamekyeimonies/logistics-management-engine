@@ -1,6 +1,7 @@
 package logistics_management_engine.service.auth;
 
 
+import logistics_management_engine.common.Messages;
 import logistics_management_engine.config.JwtUtil;
 import logistics_management_engine.dto.LoginResponse;
 import logistics_management_engine.models.Employee;
@@ -44,6 +45,7 @@ public class AuthService {
                 .id(employee.getId())
                 .staff_id(employee.getStaff_id())
                 .profile_picture(employee.getProfile_picture())
+                .message(Messages.LOGIN_SUCCESSFULLY)
                 .role(employee.getRole())
                 .build();
 

@@ -4,7 +4,9 @@ import logistics_management_engine.common.Messages;
 import logistics_management_engine.config.JwtUtil;
 import logistics_management_engine.dto.*;
 import logistics_management_engine.models.Employee;
+import logistics_management_engine.models.EmployeeRole;
 import logistics_management_engine.repository.EmployeeRepository;
+import logistics_management_engine.repository.EmployeeRoleRepository;
 import logistics_management_engine.service.auth.AuthService;
 import logistics_management_engine.service.auth.IEmployeeService;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,12 +27,13 @@ public class Employee_Controller {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
     private final EmployeeRepository employeeRepository;
+    private final EmployeeRoleRepository employeeRoleRepository;
 
     @PostMapping("/createSupervisorAccount")
     public @ResponseBody ResponseEntity<CreateAccountResponse> createSupervisorAccount(
             @ModelAttribute CreateAccountRequest createAccountRequest) {
         try {
-            CreateAccountResponse response = employeeService.CreateSupervisorAccount(createAccountRequest).get();
+            CreateAccountResponse response = employeeService.CreateEmployeeAccount(createAccountRequest).get();
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             // Log the exception
@@ -48,12 +50,9 @@ public class Employee_Controller {
     @PostMapping("/login")
     public @ResponseBody ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         try {
-            // Authenticate user and generate JWT token
             LoginResponse loginResponse = authService.authenticate(loginRequest.getStaff_id(), loginRequest.getPassword());
-            // Return the JWT token as the response
             return ResponseEntity.ok(loginResponse);
         } catch (Exception e) {
-            // Return an error if authentication fails
             LoginResponse errorResponse = LoginResponse.builder().message("Error :" + e.getMessage()).build();
             return ResponseEntity.status(401).body(errorResponse);
         }
@@ -79,6 +78,11 @@ public class Employee_Controller {
         } catch (Exception e) {
             return ResponseEntity.status(401).body(new RefreshTokenResponse("","","Invalid refresh token"));
         }
+    }
+
+    @GetMapping("/roles")
+    public @ResponseBody List<EmployeeRole> getAllRoles() {
+        return employeeRoleRepository.findAll();
     }
 
 

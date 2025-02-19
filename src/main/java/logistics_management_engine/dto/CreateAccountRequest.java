@@ -30,6 +30,7 @@ public class CreateAccountRequest {
 
     private String about_me;
     private String address;
+    private String role;
 
     private MultipartFile profile_picture;
     private MultipartFile identification_card_front;
