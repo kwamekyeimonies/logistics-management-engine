@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: kpododoconsult/logistics-management-engine:latest
+    build: .  # Uses the Dockerfile in the current directory
     container_name: logistics_app
     restart: always
     ports:
@@ -42,4 +42,3 @@ services:
 networks:
   logistics_network:
     driver: bridge
-
