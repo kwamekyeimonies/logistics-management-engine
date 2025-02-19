@@ -50,12 +50,9 @@ public class Employee_Controller {
     @PostMapping("/login")
     public @ResponseBody ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         try {
-            // Authenticate user and generate JWT token
             LoginResponse loginResponse = authService.authenticate(loginRequest.getStaff_id(), loginRequest.getPassword());
-            // Return the JWT token as the response
             return ResponseEntity.ok(loginResponse);
         } catch (Exception e) {
-            // Return an error if authentication fails
             LoginResponse errorResponse = LoginResponse.builder().message("Error :" + e.getMessage()).build();
             return ResponseEntity.status(401).body(errorResponse);
         }

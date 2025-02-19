@@ -7,8 +7,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.NaturalId;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.ZonedDateTime;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table(name = "employee")
@@ -16,7 +21,7 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Employee {
+public class Employee implements UserDetails {
     @Id
     @Column(nullable = false, unique = true)
     private String id;
@@ -44,4 +49,22 @@ public class Employee {
     private ZonedDateTime updated_at;
     private ZonedDateTime deleted_at;
     private Boolean is_deleted;
+    @OneToMany(mappedBy = "createdByEmployee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProductCategory> createdCategories;
+
+    @OneToMany(mappedBy = "createdByEmployee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProductSupplier> createdSuppliers;
+
+    @OneToMany(mappedBy = "createdByEmployee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Product> createdProducts;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getUsername() {
+        return staff_id;
+    }
 }

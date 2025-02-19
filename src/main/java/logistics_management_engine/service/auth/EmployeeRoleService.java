@@ -14,7 +14,6 @@ public class EmployeeRoleService {
 
     @PostConstruct
     public void initRoles() {
-        // Check if roles already exist in the database
         for (EmployeeRoles role : EmployeeRoles.values()) {
             employeeRoleRepository.findByRoleName(role).orElseGet(() -> {
                 EmployeeRole employeeRole = new EmployeeRole(role);

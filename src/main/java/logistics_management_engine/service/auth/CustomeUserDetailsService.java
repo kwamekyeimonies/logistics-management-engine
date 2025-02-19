@@ -18,10 +18,8 @@ public class CustomeUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String staff_id) throws UsernameNotFoundException {
-        // Try to find the user by staffId, username, or phone_number
-        Employee employee = employeeRepository.findEmployeeByStaff_id(staff_id)
+        return employeeRepository.findEmployeeByStaff_id(staff_id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with staff_id: " + staff_id));
-
-        return new User(employee.getStaff_id(), employee.getPassword(), Collections.emptyList());
     }
+
 }
