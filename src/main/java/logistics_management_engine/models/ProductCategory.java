@@ -32,7 +32,7 @@ public class ProductCategory {
     private LocalDateTime createdDate;
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_employee_id", nullable = false, columnDefinition = "VARCHAR")
     private Employee createdByEmployee;
     @Column(name = "updated_by")
@@ -45,10 +45,10 @@ public class ProductCategory {
     private String keywords;
     @Column(name = "display_order")
     private Integer displayOrder;
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = false)
     @JsonIgnore
     private Boolean isDeleted;
-    @Column(name = "deleted_at")
+    @Column(name = "deleted_at", nullable = false)
     private LocalDateTime deletedDate;
 
 

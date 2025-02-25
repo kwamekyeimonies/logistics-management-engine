@@ -1,7 +1,9 @@
 package logistics_management_engine.controllers;
 
 
+import jakarta.validation.Valid;
 import logistics_management_engine.dto.CreateProductCategoryRequest;
+import logistics_management_engine.dto.CreateProductCategoryResponse;
 import logistics_management_engine.dto.UpdateProductCategoryRequest;
 import logistics_management_engine.middleware.RequiresRole;
 import logistics_management_engine.models.Employee;
@@ -26,12 +28,12 @@ public class ProductCategoryController {
 
     @PostMapping
     @RequiresRole({"Supervisor", "Administrator", "Manager"})
-    public ResponseEntity<?> createProductCategory(
-            @RequestBody CreateProductCategoryRequest dto,
+    public @ResponseBody ResponseEntity<?> createProductCategory(
+            @Valid @RequestBody CreateProductCategoryRequest dto,
             Authentication authentication) {
         try {
             Employee employee = (Employee) authentication.getPrincipal();
-            ProductCategory productCategory = productCategoryService.createProductCategory(dto, employee);
+            CreateProductCategoryResponse productCategory = productCategoryService.createProductCategory(dto, employee);
             return ResponseEntity.status(HttpStatus.CREATED).body(productCategory);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
