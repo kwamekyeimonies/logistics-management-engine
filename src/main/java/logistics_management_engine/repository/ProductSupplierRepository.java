@@ -18,5 +18,7 @@ public interface ProductSupplierRepository extends JpaRepository<ProductSupplier
     List<ProductSupplier> findByCountry(String country);
     List<ProductSupplier> findBySupplierNameContainingIgnoreCase(String supplierName);
     Optional<ProductSupplier> findBySupplierIdAndCreatedByEmployee(UUID supplierId, Employee createdByEmployee);
+    List<ProductSupplier> findByDeleted(boolean isDeleted);
+    Optional<ProductSupplier> findBySupplierIdAndCreatedByEmployeeAndDeleted(UUID supplierId, Employee createdByEmployee, boolean isDeleted);
 
 }

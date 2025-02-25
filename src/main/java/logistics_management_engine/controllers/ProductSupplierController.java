@@ -13,11 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-@CrossOrigin
 @RestController
+@CrossOrigin
 @RequestMapping("/api/v1.0/product-supplier")
 @RequiredArgsConstructor
 public class ProductSupplierController {
@@ -74,5 +76,19 @@ public class ProductSupplierController {
         Employee employee = (Employee) authentication.getPrincipal();
         ProductSupplier productSupplier = productSupplierService.getProductSupplier(employee, productSupplierId);
         return ResponseEntity.ok(productSupplier);
+    }
+
+    @DeleteMapping("/{productSupplierId}")
+    @RequiresRole({"Supervisor", "Administrator", "Manager"})
+    public @ResponseBody ResponseEntity<Map<String, String>> deleteProductSupplier(
+            @PathVariable UUID productSupplierId,
+            Authentication authentication) {
+        Employee employee = (Employee) authentication.getPrincipal();
+        String responseMessage = productSupplierService.deleteProductSupplier(productSupplierId, employee);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", responseMessage);
+
+        return ResponseEntity.ok(response);
     }
 }

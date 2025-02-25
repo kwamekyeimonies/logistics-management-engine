@@ -13,6 +13,7 @@ public interface IProductSupplierService {
     List<ProductSupplier> getAllProductSuppliersCreateByEmployee(Employee employee);
     List<ProductSupplier> getAllProductSuppliers();
     ProductSupplier getProductSupplier(Employee employee, UUID productSupplierId);
+    String deleteProductSupplier(UUID productSupplierId, Employee employee);
     CreateProductSupplierResponse addProductSupplier(CreateProductSupplierRequest productSupplierRequest, Employee employee);
     UpdateProductSupplierResponse updateProductSupplier(UUID productSupplierId, CreateProductSupplierRequest productSupplierRequest, Employee employee);
 }

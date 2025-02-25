@@ -8,12 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface ProductCategoryRepository extends JpaRepository<ProductCategory, UUID> {
-    // Fetch category by ID
     ProductCategory findProductCategoryByCategoryId(UUID categoryId);
     List<ProductCategory> findByCreatedByEmployee(Employee createdByEmployee);
-    // Fetch categories by status
     List<ProductCategory> findByStatus(String status);
+    List<ProductCategory> findByIsDeleted(Boolean isDeleted);
+    List<ProductCategory>findByCreatedByEmployeeAndIsDeleted(Employee createdByEmployee, Boolean isDeleted);
+    Optional<ProductCategory> findByIdAndIsDeleted(UUID id, Boolean isDeleted);
+
 }

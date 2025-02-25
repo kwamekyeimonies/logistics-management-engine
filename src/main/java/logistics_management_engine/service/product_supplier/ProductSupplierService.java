@@ -27,13 +27,13 @@ public class ProductSupplierService implements IProductSupplierService{
 
     @Override
     public List<ProductSupplier> getAllProductSuppliers() {
-        return productSupplierRepository.findAll();
+        return productSupplierRepository.findByDeleted(false);
     }
 
     @Override
     public ProductSupplier getProductSupplier(Employee employee, UUID productSupplierId) {
-        return productSupplierRepository.findBySupplierIdAndCreatedByEmployee(productSupplierId, employee)
-                .orElseThrow(() -> new RuntimeException("Product supplier not found with ID: " + productSupplierId));
+        return productSupplierRepository.findBySupplierIdAndCreatedByEmployeeAndDeleted(productSupplierId, employee,false)
+                .orElseThrow(() -> new RuntimeException("Product Supplier not found with ID: " + productSupplierId));
     }
 
     @Override
@@ -110,6 +110,26 @@ public class ProductSupplierService implements IProductSupplierService{
             throw new RuntimeException(exception.getMessage());
         }
 
+    }
+
+    @Override
+    public String deleteProductSupplier(UUID productSupplierId, Employee employee) {
+        try {
+            ProductSupplier productSupplier = productSupplierRepository.findBySupplierIdAndCreatedByEmployee(productSupplierId, employee)
+                    .orElseThrow(() -> new RuntimeException("Product Supplier not found with ID: " + productSupplierId));
+
+            if (productSupplier.isDeleted()) {
+                return "Product Supplier is already deleted";
+            }
+
+            productSupplier.setDeleted(true);
+            productSupplier.setDeletedAt(LocalDateTime.now());
+            productSupplierRepository.save(productSupplier);
+
+            return "Product Supplier marked as deleted successfully";
+        } catch (Exception exception) {
+            throw new RuntimeException(String.format("Error deleting product supplier: %s", exception.getMessage()));
+        }
     }
 
 

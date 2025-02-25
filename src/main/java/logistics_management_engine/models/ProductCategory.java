@@ -1,11 +1,13 @@
 package logistics_management_engine.models;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -43,5 +45,11 @@ public class ProductCategory {
     private String keywords;
     @Column(name = "display_order")
     private Integer displayOrder;
+    @Column(name = "is_deleted")
+    @JsonIgnore
+    private Boolean isDeleted;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedDate;
+
 
 }

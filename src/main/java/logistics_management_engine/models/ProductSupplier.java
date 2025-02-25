@@ -38,6 +38,7 @@ public class ProductSupplier {
     private String country;
     @Column(name = "postal_code")
     private String postalCode;
+    @JsonIgnore
     @Column(name = "status", nullable = false)
     private String status;
     @Column(name = "created_date", nullable = false)
@@ -50,5 +51,11 @@ public class ProductSupplier {
     private Employee createdByEmployee;
     @Column(name = "updated_by")
     private String updatedBy;
+    @JsonIgnore
+    @Column(name = "is_deleted", nullable = false)
+    private boolean deleted = false;
+    @JsonIgnore
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
 }

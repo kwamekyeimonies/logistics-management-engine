@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
+@CrossOrigin
 @RequiredArgsConstructor
 @RequestMapping("/api/v1.0/employee")
 public class Employee_Controller {
@@ -36,8 +37,6 @@ public class Employee_Controller {
             CreateAccountResponse response = employeeService.CreateEmployeeAccount(createAccountRequest).get();
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // Log the exception
-            e.printStackTrace();
 
             CreateAccountResponse errorResponse = CreateAccountResponse.builder()
                     .message("Error: " + e.getMessage())
