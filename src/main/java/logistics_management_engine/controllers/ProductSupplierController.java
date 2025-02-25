@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/v1.0/product-supplier")
 @RequiredArgsConstructor
@@ -57,7 +58,6 @@ public class ProductSupplierController {
     }
 
     @GetMapping("/all")
-    @CrossOrigin(origins = "*")
     @RequiresRole({"Supervisor", "Administrator", "Manager"})
     public @ResponseBody ResponseEntity<List<ProductSupplier>> getAllProductSuppliers(
             Authentication authentication) {
