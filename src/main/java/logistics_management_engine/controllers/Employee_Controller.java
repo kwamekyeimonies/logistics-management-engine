@@ -65,7 +65,7 @@ public class Employee_Controller {
             }
             String username = jwtUtil.extractUsername(refreshTokenRequest.getRefresh_token());
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            Employee employee = employeeRepository.findEmployeeByStaff_id(username)
+            Employee employee = employeeRepository.findEmployeeByStaffId(username)
                     .orElseThrow(() -> new RuntimeException("Employee not found"));
 
             String newAccessToken = jwtUtil.generateAccessToken(userDetails, employee);

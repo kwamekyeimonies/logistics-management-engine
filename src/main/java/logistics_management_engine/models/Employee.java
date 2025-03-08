@@ -5,15 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.NaturalId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "employee")
@@ -23,32 +24,44 @@ import java.util.List;
 @Builder
 public class Employee implements UserDetails {
     @Id
-    @Column(nullable = false, unique = true)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
+    private UUID id;
+
     @NaturalId
-    private String staff_id;
+    private String staffId;
+
     @NaturalId
-    private String user_name;
-    private String first_name;
-    private String last_name;
+    private String username;
+
+    @Version
+    @Column(name = "version")
+    private Instant version;
+
+    private String firstName;
+    private String lastName;
+
     @NaturalId
     private String email;
+
     @NaturalId
-    private String phone_number;
+    private String phoneNumber;
+
     private String password;
     private String role;
-    private String about_me;
+    private String aboutMe;
     private String address;
-    private String profile_picture;
-    private String identification_card_front;
-    private String identification_card_back;
-    private String identification_number;
+    private String profilePicture;
+    private String identificationCardFront;
+    private String identificationCardBack;
+    private String identificationNumber;
     private String status;
-    private String date_of_birth;
-    private ZonedDateTime created_at;
-    private ZonedDateTime updated_at;
-    private ZonedDateTime deleted_at;
-    private Boolean is_deleted;
+    private String dateOfBirth;
+    private ZonedDateTime createdAt;
+    private ZonedDateTime updatedAt;
+    private ZonedDateTime deletedAt;
+    private Boolean isDeleted;
+
     @OneToMany(mappedBy = "createdByEmployee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProductCategory> createdCategories;
 
@@ -57,6 +70,8 @@ public class Employee implements UserDetails {
 
     @OneToMany(mappedBy = "createdByEmployee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Product> createdProducts;
+    @OneToMany(mappedBy = "createdByEmployee", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Category> createdCategoriesList;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -65,6 +80,6 @@ public class Employee implements UserDetails {
 
     @Override
     public String getUsername() {
-        return staff_id;
+        return staffId;
     }
 }

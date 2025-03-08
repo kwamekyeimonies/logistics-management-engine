@@ -32,13 +32,13 @@ public class JwtUtil {
     public String generateAccessToken(UserDetails user_details, Employee employee) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", employee.getRole());
-        claims.put("staff_id", employee.getStaff_id());
+        claims.put("staff_id", employee.getStaffId());
         claims.put("id", employee.getId());
-        claims.put("first_name", employee.getFirst_name());
-        claims.put("last_name", employee.getLast_name());
+        claims.put("first_name", employee.getFirstName());
+        claims.put("last_name", employee.getLastName());
         claims.put("email", employee.getEmail());
-        claims.put("created_at", employee.getCreated_at().toString());
-        claims.put("phone_number", employee.getPhone_number());
+        claims.put("created_at", employee.getCreatedAt().toString());
+        claims.put("phone_number", employee.getPhoneNumber());
         return createToken(claims, user_details.getUsername(), expiration);
 
     }
@@ -46,13 +46,13 @@ public class JwtUtil {
     public String generateRefreshToken(UserDetails userDetails, Employee employee) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", employee.getRole());
-        claims.put("staff_id", employee.getStaff_id());
+        claims.put("staff_id", employee.getStaffId());
         claims.put("id", employee.getId());
-        claims.put("first_name", employee.getFirst_name());
-        claims.put("last_name", employee.getLast_name());
+        claims.put("first_name", employee.getFirstName());
+        claims.put("last_name", employee.getLastName());
         claims.put("email", employee.getEmail());
-        claims.put("created_at", employee.getCreated_at().toString());
-        claims.put("phone_number", employee.getPhone_number());
+        claims.put("created_at", employee.getCreatedAt().toString());
+        claims.put("phone_number", employee.getPhoneNumber());
         return createToken(claims, userDetails.getUsername(), refreshExpiration);
     }
 

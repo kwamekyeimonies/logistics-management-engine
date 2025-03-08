@@ -23,7 +23,7 @@ public class AuthService {
 
     public LoginResponse authenticate(String staff_id, String password) {
 
-        Employee employee = employeeRepository.findEmployeeByStaff_id(staff_id)
+        Employee employee = employeeRepository.findEmployeeByStaffId(staff_id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Authentication authentication = authenticationManager.authenticate(
@@ -39,12 +39,12 @@ public class AuthService {
                 .access_token(access_token)
                 .refresh_token(refresh_token)
                 .email(employee.getEmail())
-                .first_name(employee.getFirst_name())
-                .last_name(employee.getLast_name())
-                .phone_number(employee.getPhone_number())
+                .first_name(employee.getFirstName())
+                .last_name(employee.getLastName())
+                .phone_number(employee.getPhoneNumber())
                 .id(employee.getId())
-                .staff_id(employee.getStaff_id())
-                .profile_picture(employee.getProfile_picture())
+                .staff_id(employee.getStaffId())
+                .profile_picture(employee.getProfilePicture())
                 .message(Messages.LOGIN_SUCCESSFULLY)
                 .role(employee.getRole())
                 .build();

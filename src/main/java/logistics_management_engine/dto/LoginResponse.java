@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -14,7 +16,7 @@ public class LoginResponse {
     private String profile_picture;
     private String role;
     private String staff_id;
-    private String id;
+    private UUID id;
     private String phone_number;
     private String access_token;
     private String refresh_token;

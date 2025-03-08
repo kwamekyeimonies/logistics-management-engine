@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.time.Instant;
+
 @Entity
 @Data
 @RequiredArgsConstructor
@@ -19,6 +21,9 @@ public class EmployeeRole {
     @Enumerated(EnumType.STRING)
     @Column(unique = true, nullable = false)
     private EmployeeRoles roleName;
+    @Version
+    @Column(name = "version")
+    private Instant version;
 
     public EmployeeRole(EmployeeRoles roleName) {
         this.roleName = roleName;

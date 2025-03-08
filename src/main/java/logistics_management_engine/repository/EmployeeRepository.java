@@ -10,13 +10,14 @@ import java.util.Optional;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, String> {
-    @Query("SELECT e FROM Employee e WHERE e.user_name = :userName")
-    Optional<Employee> findEmployeeByUserName(@Param("userName") String userName);
     Optional<Employee> findEmployeeByEmail(String email);
-    @Query("SELECT e FROM Employee e WHERE e.staff_id = :staffId")
-    Optional<Employee> findEmployeeByStaff_id(@Param("staffId") String staffId);
-    @Query("SELECT e FROM Employee e WHERE e.phone_number = :phoneNumber")
+
+    @Query("SELECT e FROM Employee e WHERE e.staffId = :staffId")
+    Optional<Employee> findEmployeeByStaffId(@Param("staffId") String staffId);
+
+    @Query("SELECT e FROM Employee e WHERE e.phoneNumber = :phoneNumber")
     Optional<Employee> findEmployeeByPhoneNumber(@Param("phoneNumber") String phoneNumber);
-    @Query("SELECT e FROM Employee e WHERE e.staff_id = :identifier OR e.user_name = :identifier OR e.phone_number = :identifier")
-    Optional<Employee> findEmployeeByStaffIdOrUserNameOrPhoneNumber(@Param("identifier") String identifier);
+
+//    @Query("SELECT e FROM Employee e WHERE e.staffId = :identifier OR e.username = :identifier OR e.phoneNumber = :identifier")
+//    Optional<Employee> findEmployeeByStaffIdOrUsernameOrPhoneNumber(@Param("identifier") String identifier);
 }

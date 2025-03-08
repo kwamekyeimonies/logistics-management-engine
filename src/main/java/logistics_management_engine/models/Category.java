@@ -13,17 +13,17 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "product_category")
+@Table(name = "category")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class ProductCategory {
-
+public class Category {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Id", columnDefinition = "UUID")
-    private UUID Id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(nullable = false, columnDefinition = "UUID")
+    private UUID id;
+
 
     @Column(name = "categoryName", nullable = false)
     private String categoryName;
@@ -43,10 +43,6 @@ public class ProductCategory {
 
     @Column(name = "updatedDate")
     private LocalDateTime updatedDate;
-
-    @ManyToOne()
-    @JoinColumn(name = "createdByEmployee", nullable = false)
-    private Employee createdByEmployee;
 
     @Column(name = "updatedBy")
     private String updatedBy;
@@ -69,5 +65,10 @@ public class ProductCategory {
 
     @Column(name = "deletedDate")
     private LocalDateTime deletedDate;
+
+    @ManyToOne
+    @JoinColumn(name = "createdByEmployeeId", nullable = false)
+    private Employee createdByEmployee;
+
 
 }

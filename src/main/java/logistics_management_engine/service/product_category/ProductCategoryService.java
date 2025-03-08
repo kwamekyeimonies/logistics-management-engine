@@ -1,32 +1,35 @@
 package logistics_management_engine.service.product_category;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import logistics_management_engine.dto.CreateProductCategoryRequest;
 import logistics_management_engine.dto.CreateProductCategoryResponse;
 import logistics_management_engine.dto.UpdateProductCategoryRequest;
+import logistics_management_engine.models.Category;
 import logistics_management_engine.models.Employee;
-import logistics_management_engine.models.ProductCategory;
-import logistics_management_engine.repository.ProductCategoryRepository;
+import logistics_management_engine.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ProductCategoryService implements IProductCategoryService {
-    private final ProductCategoryRepository productCategoryRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public CreateProductCategoryResponse createProductCategory(CreateProductCategoryRequest request, Employee employee) {
         try {
-            ProductCategory productCategory = ProductCategory.builder()
-                    .categoryId(UUID.randomUUID())
-                    .category_name(request.getCategoryName())
+
+            Category productCategory = Category.builder()
+                    .id(UUID.randomUUID()) // Ensure the field is 'id' (lowercase) as per the model
+                    .categoryName(request.getCategoryName())
                     .description(request.getDescription())
                     .status("ACTIVE")
                     .createdDate(LocalDateTime.now())
@@ -42,12 +45,12 @@ public class ProductCategoryService implements IProductCategoryService {
                     .build();
 
             // Save the entity
-            ProductCategory savedCategory = productCategoryRepository.save(productCategory);
+            Category savedCategory = categoryRepository.save(productCategory);
 
             // Map the entity to the DTO
             return CreateProductCategoryResponse.builder()
-                    .categoryId(savedCategory.getCategoryId())
-                    .categoryName(savedCategory.getCategory_name())
+                    .categoryId(savedCategory.getId())
+                    .categoryName(savedCategory.getCategoryName())
                     .description(savedCategory.getDescription())
                     .status(savedCategory.getStatus())
                     .createdDate(savedCategory.getCreatedDate())
@@ -60,50 +63,55 @@ public class ProductCategoryService implements IProductCategoryService {
                     .build();
         } catch (DataAccessException e) {
             throw new RuntimeException("Error creating product category", e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public ProductCategory updateProductCategory(UUID categoryId, UpdateProductCategoryRequest request, Employee employee) {
+    public Category updateProductCategory(UUID categoryId, UpdateProductCategoryRequest request, Employee employee) {
         try {
-            return productCategoryRepository.findById(categoryId)
+            return categoryRepository.findById(categoryId)
                     .map(existingCategory -> {
-                        existingCategory.setCategory_name(request.getCategoryName());
+                        existingCategory.setCategoryName(request.getCategoryName());
                         existingCategory.setDescription(request.getDescription());
                         existingCategory.setUpdatedDate(LocalDateTime.now());
-                        existingCategory.setUpdatedBy(employee.getStaff_id());
-                        return productCategoryRepository.save(existingCategory);
+                        existingCategory.setUpdatedBy(employee.getStaffId());
+                        existingCategory.setTaxRate(request.getTaxRate());
+                        existingCategory.setDiscountRules(request.getDiscountRules());
+                        existingCategory.setDisplayOrder(request.getDisplayOrder());
+                        return categoryRepository.save(existingCategory);
                     })
-                    .orElseThrow(() -> new RuntimeException("Product Category not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("Product Category not found for ID: " + categoryId));
         } catch (DataAccessException e) {
             throw new RuntimeException("Error updating product category", e);
         }
     }
 
     @Override
-    public List<ProductCategory> getAllProductCategories() {
+    public List<Category> getAllProductCategories() {
         try {
-            return productCategoryRepository.findByIsDeleted(false);
+            return categoryRepository.findAllByIsDeletedFalse(); // Fetch only non-deleted categories
         } catch (DataAccessException e) {
             throw new RuntimeException("Error fetching product categories", e);
         }
     }
 
     @Override
-    public List<ProductCategory> getProductCategoriesByEmployee(Employee employee) {
+    public List<Category> getProductCategoriesByEmployee(Employee employee) {
         try {
-            return productCategoryRepository.findByCreatedByEmployeeAndIsDeleted(employee, false);
+            return categoryRepository.findAllByCreatedByEmployeeIdAndIsDeletedFalse(employee.getId()); // Fetch categories created by the employee and not deleted
         } catch (DataAccessException e) {
             throw new RuntimeException("Error fetching product categories by employee", e);
         }
     }
 
     @Override
-    public ProductCategory getProductCategoryById(UUID categoryId) {
+    public Category getProductCategoryById(UUID categoryId) {
         try {
-            ProductCategory productCategory= productCategoryRepository.findByCategoryIdAndIsDeleted(categoryId, false)
+            return categoryRepository.findById(categoryId)
+                    .filter(category -> !category.getIsDeleted()) // Ensure the category is not deleted
                     .orElseThrow(() -> new EntityNotFoundException("Product Category not found for ID: " + categoryId));
-            return productCategory;
         } catch (DataAccessException e) {
             throw new RuntimeException("Error fetching product category", e);
         }
@@ -112,19 +120,40 @@ public class ProductCategoryService implements IProductCategoryService {
     @Override
     public ResponseEntity<Map<String, String>> deleteProductCategory(UUID categoryId, Employee employee) {
         try {
-            ProductCategory productCategory = productCategoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Product Category not found"));
+            Category productCategory = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new EntityNotFoundException("Product Category not found for ID: " + categoryId));
 
+            // Soft delete the category
             productCategory.setIsDeleted(true);
             productCategory.setDeletedDate(LocalDateTime.now());
-            productCategory.setUpdatedBy(employee.getStaff_id());
-            productCategoryRepository.save(productCategory);
+            productCategory.setUpdatedBy(employee.getStaffId());
+            categoryRepository.save(productCategory);
 
             Map<String, String> response = new HashMap<>();
             response.put("message", "Product Category deleted successfully");
             return ResponseEntity.ok(response);
         } catch (DataAccessException e) {
             throw new RuntimeException("Error deleting product category", e);
+        }
+    }
+
+
+    public Category getProductCategoryByName(String categoryName) {
+        try {
+            return categoryRepository.findByCategoryName(categoryName)
+                    .filter(category -> !category.getIsDeleted()) // Ensure the category is not deleted
+                    .orElseThrow(() -> new EntityNotFoundException("Product Category not found for name: " + categoryName));
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error fetching product category by name", e);
+        }
+    }
+
+    public Category getProductCategoryByNameAndEmployee(String categoryName, Employee employee) {
+        try {
+            return categoryRepository.findByCategoryNameAndCreatedByEmployeeIdAndIsDeletedFalse(categoryName, employee.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Product Category not found for name: " + categoryName + " and employee ID: " + employee.getId()));
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error fetching product category by name and employee", e);
         }
     }
 }

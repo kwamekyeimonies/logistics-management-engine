@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static logistics_management_engine.common.Messages.PRODUCT_SUPPLIER_CREATED_SUCCESSFULLY;
@@ -22,19 +23,23 @@ public class ProductSupplierService implements IProductSupplierService{
     private final ProductSupplierRepository productSupplierRepository;
     @Override
     public List<ProductSupplier> getAllProductSuppliersCreateByEmployee(Employee employee) {
-        return productSupplierRepository.findByCreatedByEmployee(employee);
+        return productSupplierRepository.findSuppliersByEmployee(employee.getId());
     }
 
     @Override
     public List<ProductSupplier> getAllProductSuppliers() {
-        return productSupplierRepository.findByDeleted(false);
+        return productSupplierRepository.findAllActiveSuppliers();
     }
 
     @Override
     public ProductSupplier getProductSupplier(Employee employee, UUID productSupplierId) {
-        return productSupplierRepository.findBySupplierIdAndCreatedByEmployeeAndDeleted(productSupplierId, employee,false)
+        return productSupplierRepository.findSuppliersByEmployee(employee.getId())
+                .stream()
+                .filter(supplier -> supplier.getId().equals(productSupplierId))
+                .findFirst()
                 .orElseThrow(() -> new RuntimeException("Product Supplier not found with ID: " + productSupplierId));
     }
+
 
     @Override
     public CreateProductSupplierResponse addProductSupplier(CreateProductSupplierRequest productSupplierRequest, Employee employee) {
@@ -42,7 +47,7 @@ public class ProductSupplierService implements IProductSupplierService{
        {
            ProductSupplier productSupplier;
            productSupplier = ProductSupplier.builder()
-                   .supplierId(UUID.randomUUID())
+                   .Id(UUID.randomUUID())
                    .supplierName(productSupplierRequest.getSupplierName())
                    .contactName(productSupplierRequest.getContactName())
                    .contactEmail(productSupplierRequest.getContactEmail())
@@ -64,7 +69,7 @@ public class ProductSupplierService implements IProductSupplierService{
            CreateProductSupplierResponse createProductSupplierResponse = CreateProductSupplierResponse
                    .builder()
                    .message(PRODUCT_SUPPLIER_CREATED_SUCCESSFULLY)
-                   .supplierId(productSupplier.getSupplierId())
+                   .supplierId(productSupplier.getId())
                    .supplierName(productSupplier.getSupplierName())
                    .build();
 
@@ -75,47 +80,43 @@ public class ProductSupplierService implements IProductSupplierService{
     }
 
     @Override
-    public UpdateProductSupplierResponse updateProductSupplier(UUID productSupplierId, CreateProductSupplierRequest productSupplierRequest, Employee employee) {
+    public UpdateProductSupplierResponse updateProductSupplier(
+            UUID productSupplierId,
+            CreateProductSupplierRequest productSupplierRequest,
+            Employee employee) {
         try {
-            ProductSupplier productSupplier = productSupplierRepository.findBySupplierId(productSupplierId);
-            if (productSupplier == null) {
-                throw new RuntimeException("Product Supplier not found");
-            }
+            ProductSupplier productSupplier = productSupplierRepository.findById(productSupplierId)
+                    .orElseThrow(() -> new RuntimeException("Product Supplier not found"));
 
-            productSupplier.setSupplierName(productSupplier.getSupplierName());
-            productSupplier.setContactName(productSupplier.getContactName());
-            productSupplier.setContactEmail(productSupplier.getContactEmail());
-            productSupplier.setContactPhone(productSupplier.getContactPhone());
-            productSupplier.setAddress(productSupplier.getAddress());
-            productSupplier.setCity(productSupplier.getCity());
-            productSupplier.setState(productSupplier.getState());
-            productSupplier.setCountry(productSupplier.getCountry());
-            productSupplier.setPostalCode(productSupplier.getPostalCode());
-            productSupplier.setStatus(productSupplier.getStatus());
+            productSupplier.setSupplierName(productSupplierRequest.getSupplierName());
+            productSupplier.setContactName(productSupplierRequest.getContactName());
+            productSupplier.setContactEmail(productSupplierRequest.getContactEmail());
+            productSupplier.setContactPhone(productSupplierRequest.getContactPhone());
+            productSupplier.setAddress(productSupplierRequest.getAddress());
+            productSupplier.setCity(productSupplierRequest.getCity());
+            productSupplier.setState(productSupplierRequest.getState());
+            productSupplier.setCountry(productSupplierRequest.getCountry());
+            productSupplier.setPostalCode(productSupplierRequest.getPostalCode());
+            productSupplier.setStatus(productSupplierRequest.getState());
             productSupplier.setUpdatedDate(LocalDateTime.now());
             productSupplier.setUpdatedBy(employee.getId());
 
             productSupplierRepository.save(productSupplier);
 
-            UpdateProductSupplierResponse updateProductSupplierResponse = UpdateProductSupplierResponse
-                    .builder()
+            return UpdateProductSupplierResponse.builder()
                     .supplierName(productSupplier.getSupplierName())
-                    .supplierId(productSupplier.getSupplierId())
+                    .supplierId(productSupplier.getId())
                     .message("Product Supplier Updated")
                     .build();
-
-            return updateProductSupplierResponse;
-
-        }catch (Exception exception){
-            throw new RuntimeException(exception.getMessage());
+        } catch (Exception exception) {
+            throw new RuntimeException("Failed to update product supplier: " + exception.getMessage());
         }
-
     }
 
     @Override
     public String deleteProductSupplier(UUID productSupplierId, Employee employee) {
         try {
-            ProductSupplier productSupplier = productSupplierRepository.findBySupplierIdAndCreatedByEmployee(productSupplierId, employee)
+            ProductSupplier productSupplier = productSupplierRepository.findById( productSupplierId)
                     .orElseThrow(() -> new RuntimeException("Product Supplier not found with ID: " + productSupplierId));
 
             if (productSupplier.isDeleted()) {
